@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <a href="{{ url_for('index') }}" class="sidebar-brand">
+      <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+      DocuSumm<span class="brand-accent">AI</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link active">
+        <i class="fa-solid fa-gauge"></i> Dashboard
+      </a>
+      {% if current_user.is_admin %}
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link">
+        <i class="fa-solid fa-shield-halved"></i> Admin Panel
+      </a>
+      {% endif %}
+
+      <div class="nav-section-label mt">Account</div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link sidebar-link-danger">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign out
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ current_user.username }}</div>
+        <div class="user-email">{{ current_user.email }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────────────────── -->
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1 class="page-title">My Dashboard</h1>
+        <p class="page-subtitle">Upload a document and get an AI-powered summary instantly.</p>
+      </div>
+      <div class="topbar-stats">
+        <div class="stat-chip">
+          <i class="fa-solid fa-file-lines"></i>
+          {{ summaries|length }} summar{{ 'y' if summaries|length == 1 else 'ies' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Upload area ────────────────────────────────────────────────────── -->
+    <div class="upload-section">
+      <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="uploadForm">
+        <div class="dropzone" id="dropzone">
+          <input
+            type="file" name="document" id="fileInput"
+            accept=".pdf,.docx,.pptx,.png,.jpg,.jpeg"
+            class="dropzone-input"
+          />
+          <div class="dropzone-content" id="dropzoneContent">
+            <div class="dropzone-icon">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <p class="dropzone-title">Drop your file here</p>
+            <p class="dropzone-sub">or <span class="dropzone-link">click to browse</span></p>
+            <div class="dropzone-formats">
+              <span class="fmt-badge">PDF</span>
+              <span class="fmt-badge">DOCX</span>
+              <span class="fmt-badge">PPTX</span>
+              <span class="fmt-badge">PNG</span>
+              <span class="fmt-badge">JPG</span>
+            </div>
+            <p class="dropzone-limit">Max file size: 16 MB</p>
+          </div>
+
+          <!-- File selected preview -->
+          <div class="file-preview" id="filePreview" style="display:none">
+            <div class="file-preview-icon" id="filePreviewIcon">
+              <i class="fa-solid fa-file"></i>
+            </div>
+            <div class="file-preview-info">
+              <div class="file-preview-name" id="filePreviewName">filename.pdf</div>
+              <div class="file-preview-size" id="filePreviewSize">0 KB</div>
+            </div>
+            <button type="button" class="file-preview-remove" onclick="clearFile()">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="upload-actions" id="uploadActions" style="display:none">
+          <button type="submit" class="btn btn-primary btn-lg" id="summarizeBtn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize Document
+          </button>
+          <button type="button" class="btn btn-ghost" onclick="clearFile()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── Loading overlay ───────────────────────────────────────────────── -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none">
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <h3>Analysing your document…</h3>
+        <p id="loadingStep">Extracting text</p>
+        <div class="loading-progress">
+          <div class="loading-bar" id="loadingBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Summary history ───────────────────────────────────────────────── -->
+    <div class="history-section">
+      <div class="history-header">
+        <h2>Summary History</h2>
+        {% if summaries %}
+          <span class="history-count">{{ summaries|length }} document{{ 's' if summaries|length != 1 }}</span>
+        {% endif %}
+      </div>
+
+      {% if summaries %}
+        <div class="history-grid">
+          {% for s in summaries %}
+          <div class="history-card">
+            <div class="history-card-header">
+              <div class="file-type-badge file-type-{{ s.file_type }}">
+                {% if s.file_type == 'pdf' %}<i class="fa-solid fa-file-pdf"></i>
+                {% elif s.file_type == 'docx' %}<i class="fa-solid fa-file-word"></i>
+                {% elif s.file_type == 'pptx' %}<i class="fa-solid fa-file-powerpoint"></i>
+                {% else %}<i class="fa-solid fa-file-image"></i>{% endif %}
+                {{ s.file_type.upper() }}
+              </div>
+              <span class="history-date">
+                {{ s.created_at.strftime('%b %d, %Y') }}
+              </span>
+            </div>
+            <div class="history-card-body">
+              <h3 class="history-filename" title="{{ s.filename }}">
+                {{ s.filename | truncate(45) }}
+              </h3>
+              <p class="history-preview">
+                {{ s.summary | truncate(120) }}
+              </p>
+            </div>
+            <div class="history-card-footer">
+              <span class="word-count-badge">
+                <i class="fa-solid fa-align-left"></i>
+                {{ s.word_count }} words
+              </span>
+              <div class="history-actions">
+                <a href="{{ url_for('result', summary_id=s.id) }}" class="btn btn-sm btn-primary">
+                  View
+                </a>
+                <form method="POST" action="{{ url_for('delete_summary', summary_id=s.id) }}"
+                      onsubmit="return confirm('Delete this summary?')" style="display:inline">
+                  <button type="submit" class="btn btn-sm btn-danger">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fa-solid fa-folder-open"></i></div>
+          <h3>No summaries yet</h3>
+          <p>Upload your first document above to get started.</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Drag-and-drop + file preview logic handled in script.js
+</script>
+{% endblock %}

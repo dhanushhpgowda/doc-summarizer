@@ -1,0 +1,12 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Werkzeug
+groq
+PyMuPDF
+python-docx
+python-pptx
+Pillow
+pytesseract
+SQLAlchemy
+python-dotenv

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Sign In – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <a href="{{ url_for('index') }}" class="nav-brand mb-lg">
+        <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+        DocuSumm<span class="brand-accent">AI</span>
+      </a>
+      <h2 class="auth-tagline">Turn documents<br /><em>into decisions.</em></h2>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          AI-powered document summaries
+        </div>
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          OCR for images & scans
+        </div>
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          Full summary history
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <h1>Welcome back</h1>
+        <p>Sign in to your DocuSumm account</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <input
+              type="email" id="email" name="email"
+              placeholder="you@example.com"
+              required autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            Password
+            <a href="#" class="form-link" style="float:right;font-weight:400">Forgot password?</a>
+          </label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input
+              type="password" id="password" name="password"
+              placeholder="••••••••"
+              required autocomplete="current-password"
+            />
+            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+              <i class="fa-solid fa-eye" id="password-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="remember" name="remember" />
+          <label for="remember">Keep me signed in</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account?
+        <a href="{{ url_for('auth.register') }}" class="form-link">Create one free</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

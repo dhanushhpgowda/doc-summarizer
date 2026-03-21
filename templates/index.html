@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}DocuSumm AI – Instant Document Intelligence{% endblock %}
+
+{% block body %}
+
+<!-- ── Navbar ──────────────────────────────────────────────────────────────── -->
+<nav class="landing-nav">
+  <a href="{{ url_for('index') }}" class="nav-brand">
+    <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+    DocuSumm<span class="brand-accent">AI</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How it works</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-sm">Dashboard</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fa-solid fa-sparkles"></i>
+      Powered by Groq LLaMA 3
+    </div>
+    <h1 class="hero-title">
+      Turn any document into<br />
+      <span class="hero-title-italic">instant insight</span>
+    </h1>
+    <p class="hero-subtitle">
+      Upload PDFs, Word docs, presentations, or images.
+      Our AI reads, understands, and delivers a clean,
+      structured summary in seconds.
+    </p>
+    <div class="hero-cta">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-arrow-right"></i> Go to Dashboard
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-rocket"></i> Start for free
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-lg">
+          Sign in <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      {% endif %}
+    </div>
+    <div class="hero-formats">
+      <span>Supports</span>
+      <span class="fmt-badge">PDF</span>
+      <span class="fmt-badge">DOCX</span>
+      <span class="fmt-badge">PPTX</span>
+      <span class="fmt-badge">PNG</span>
+      <span class="fmt-badge">JPG</span>
+    </div>
+  </div>
+  <!-- Floating card preview -->
+  <div class="hero-card-preview">
+    <div class="preview-card">
+      <div class="preview-card-header">
+        <div class="preview-dot red"></div>
+        <div class="preview-dot yellow"></div>
+        <div class="preview-dot green"></div>
+        <span>Annual_Report_2024.pdf</span>
+      </div>
+      <div class="preview-card-body">
+        <div class="preview-label">📄 Document Overview</div>
+        <div class="preview-line w80"></div>
+        <div class="preview-line w60"></div>
+        <div class="preview-label mt">🔑 Key Points</div>
+        <div class="preview-bullet"><div class="preview-line w90"></div></div>
+        <div class="preview-bullet"><div class="preview-line w70"></div></div>
+        <div class="preview-bullet"><div class="preview-line w85"></div></div>
+        <div class="preview-label mt">💡 Key Takeaways</div>
+        <div class="preview-line w75"></div>
+        <div class="preview-line w55"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ────────────────────────────────────────────────────────────── -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Features</div>
+      <h2>Everything you need to<br /><em>understand documents faster</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#6366f1">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3>LLM-Powered Summaries</h3>
+        <p>LLaMA 3 via Groq reads your documents with deep comprehension and returns structured, actionable summaries.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#10b981">
+          <i class="fa-solid fa-eye"></i>
+        </div>
+        <h3>OCR for Images</h3>
+        <p>Scan a photo of a whiteboard, a receipt, or a printed page – our Tesseract OCR pipeline extracts every word.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#f59e0b">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <h3>Multi-Format Support</h3>
+        <p>PDF, DOCX, PPTX, PNG, JPG – upload anything. Our intelligent parser detects and handles each format automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#ec4899">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <h3>Full History</h3>
+        <p>Every summary is saved to your account. Browse, revisit, and manage your document history at any time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#14b8a6">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3>Secure by Design</h3>
+        <p>Hashed passwords, session management, allowed-type validation, and immediate file cleanup after processing.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="--c:#8b5cf6">
+          <i class="fa-solid fa-gauge-high"></i>
+        </div>
+        <h3>Admin Controls</h3>
+        <p>Full admin dashboard to monitor users, manage summaries, view system stats, and maintain platform health.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ─────────────────────────────────────────────────────────── -->
+<section class="hiw-section" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">How it works</div>
+      <h2>From upload to insight<br /><em>in three steps</em></h2>
+    </div>
+    <div class="hiw-steps">
+      <div class="hiw-step">
+        <div class="hiw-number">01</div>
+        <div class="hiw-content">
+          <h3>Upload your document</h3>
+          <p>Drag and drop or click to upload any supported file. PDF, Word, PowerPoint, or a photo.</p>
+        </div>
+      </div>
+      <div class="hiw-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="hiw-step">
+        <div class="hiw-number">02</div>
+        <div class="hiw-content">
+          <h3>AI extracts &amp; analyses</h3>
+          <p>Text is extracted, cleaned, and sent to LLaMA 3 running on Groq's ultra-fast inference engine.</p>
+        </div>
+      </div>
+      <div class="hiw-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="hiw-step">
+        <div class="hiw-number">03</div>
+        <div class="hiw-content">
+          <h3>Read your summary</h3>
+          <p>Receive a structured summary with key points, takeaways, and a concise overview. Saved to your history.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <div class="cta-orb cta-orb-1"></div>
+      <div class="cta-orb cta-orb-2"></div>
+      <h2>Ready to summarize smarter?</h2>
+      <p>Join and start turning dense documents into clear insights — for free.</p>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-white btn-lg">
+          <i class="fa-solid fa-bolt"></i> Open Dashboard
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-white btn-lg">
+          <i class="fa-solid fa-rocket"></i> Create free account
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────────────────────────── -->
+<footer class="landing-footer">
+  <div class="container">
+    <div class="footer-brand">
+      <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+      DocuSumm<span class="brand-accent">AI</span>
+    </div>
+    <p class="footer-copy">Built with Flask, Groq &amp; Tesseract · Open-source portfolio project</p>
+  </div>
+</footer>
+
+{% endblock %}

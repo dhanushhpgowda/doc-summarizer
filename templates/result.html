@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}{{ summary.filename }} – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <a href="{{ url_for('index') }}" class="sidebar-brand">
+      <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+      DocuSumm<span class="brand-accent">AI</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link">
+        <i class="fa-solid fa-gauge"></i> Dashboard
+      </a>
+      {% if current_user.is_admin %}
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link">
+        <i class="fa-solid fa-shield-halved"></i> Admin Panel
+      </a>
+      {% endif %}
+      <div class="nav-section-label mt">Account</div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link sidebar-link-danger">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign out
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ current_user.username }}</div>
+        <div class="user-email">{{ current_user.email }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────────────────── -->
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <a href="{{ url_for('dashboard') }}" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1 class="page-title" style="margin-top:.5rem">Summary Result</h1>
+      </div>
+      <div class="result-actions-top">
+        <button onclick="copySummary()" class="btn btn-ghost btn-sm" id="copyBtn">
+          <i class="fa-solid fa-copy"></i> Copy
+        </button>
+        <button onclick="printSummary()" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-print"></i> Print
+        </button>
+        <form method="POST" action="{{ url_for('delete_summary', summary_id=summary.id) }}"
+              onsubmit="return confirm('Delete this summary permanently?')" style="display:inline">
+          <button type="submit" class="btn btn-danger btn-sm">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Document meta card -->
+    <div class="doc-meta-card">
+      <div class="doc-meta-icon file-type-{{ summary.file_type }}">
+        {% if summary.file_type == 'pdf' %}<i class="fa-solid fa-file-pdf"></i>
+        {% elif summary.file_type == 'docx' %}<i class="fa-solid fa-file-word"></i>
+        {% elif summary.file_type == 'pptx' %}<i class="fa-solid fa-file-powerpoint"></i>
+        {% else %}<i class="fa-solid fa-file-image"></i>{% endif %}
+      </div>
+      <div class="doc-meta-info">
+        <h2>{{ summary.filename }}</h2>
+        <div class="doc-meta-chips">
+          <span class="meta-chip">
+            <i class="fa-solid fa-tag"></i> {{ summary.file_type.upper() }}
+          </span>
+          <span class="meta-chip">
+            <i class="fa-solid fa-align-left"></i> {{ summary.word_count }} source words
+          </span>
+          <span class="meta-chip">
+            <i class="fa-solid fa-calendar"></i>
+            {{ summary.created_at.strftime('%B %d, %Y at %H:%M') }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary content -->
+    <div class="result-card">
+      <div class="result-card-header">
+        <div class="result-badge">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          AI-Generated Summary
+        </div>
+        <span class="powered-by">Powered by LLaMA 3 · Groq</span>
+      </div>
+      <div class="result-body" id="summaryContent">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Raw extracted text (collapsible) -->
+    {% if summary.extracted_text %}
+    <details class="raw-text-accordion">
+      <summary>
+        <i class="fa-solid fa-code"></i>
+        View extracted text
+        <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+      </summary>
+      <div class="raw-text-body">
+        <pre>{{ summary.extracted_text }}</pre>
+      </div>
+    </details>
+    {% endif %}
+
+  </main>
+</div>
+
+<!-- Hidden data for JS -->
+<script id="summaryData" type="application/json">
+  {{ summary.summary | tojson }}
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Render markdown summary
+  const raw = JSON.parse(document.getElementById('summaryData').textContent);
+  document.getElementById('summaryContent').innerHTML = marked.parse(raw);
+
+  // Copy to clipboard
+  function copySummary() {
+    navigator.clipboard.writeText(raw).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy'; }, 2000);
+    });
+  }
+
+  // Print
+  function printSummary() {
+    window.print();
+  }
+</script>
+{% endblock %}

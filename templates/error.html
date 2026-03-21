@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} Error – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="error-page">
+  <div class="error-card">
+    <div class="error-code">{{ code }}</div>
+    <h1 class="error-title">
+      {% if code == 404 %}Page not found
+      {% elif code == 403 %}Access denied
+      {% elif code == 500 %}Server error
+      {% else %}Something went wrong{% endif %}
+    </h1>
+    <p class="error-message">{{ message }}</p>
+    <div class="error-actions">
+      <a href="{{ url_for('index') }}" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i> Go home
+      </a>
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">
+        Dashboard
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

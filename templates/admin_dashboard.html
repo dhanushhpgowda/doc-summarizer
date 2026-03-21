@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <aside class="sidebar sidebar-admin">
+    <a href="{{ url_for('index') }}" class="sidebar-brand">
+      <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+      DocuSumm<span class="brand-accent">AI</span>
+    </a>
+    <div class="admin-badge-sidebar">
+      <i class="fa-solid fa-shield-halved"></i> Admin Panel
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link active">
+        <i class="fa-solid fa-gauge-high"></i> Overview
+      </a>
+      <a href="#users-section" class="sidebar-link" onclick="scrollTo('users-section')">
+        <i class="fa-solid fa-users"></i> Users
+      </a>
+      <a href="#summaries-section" class="sidebar-link">
+        <i class="fa-solid fa-file-lines"></i> Summaries
+      </a>
+
+      <div class="nav-section-label mt">Account</div>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link">
+        <i class="fa-solid fa-gauge"></i> My Dashboard
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link sidebar-link-danger">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign out
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar admin-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ current_user.username }}</div>
+        <div class="user-email">Administrator</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────────────────── -->
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">System overview and user management</p>
+      </div>
+    </div>
+
+    <!-- ── Stats cards ──────────────────────────────────────────────────── -->
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="--c:#6366f1">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-card-info">
+          <div class="stat-card-value">{{ stats.total_users }}</div>
+          <div class="stat-card-label">Total Users</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="--c:#10b981">
+          <i class="fa-solid fa-file-lines"></i>
+        </div>
+        <div class="stat-card-info">
+          <div class="stat-card-value">{{ stats.total_summaries }}</div>
+          <div class="stat-card-label">Total Summaries</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="--c:#f59e0b">
+          <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div class="stat-card-info">
+          <div class="stat-card-value">{{ stats.active_users }}</div>
+          <div class="stat-card-label">Active Users</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="--c:#ec4899">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="stat-card-info">
+          <div class="stat-card-value">{{ stats.admin_count }}</div>
+          <div class="stat-card-label">Admins</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Users table ───────────────────────────────────────────────────── -->
+    <div class="admin-table-section" id="users-section">
+      <div class="admin-table-header">
+        <h2><i class="fa-solid fa-users"></i> Users</h2>
+        <div class="table-search">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" placeholder="Search users…" onkeyup="filterTable('userTable', this.value)" />
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table" id="userTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Summaries</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td class="table-id">{{ user.id }}</td>
+              <td>
+                <div class="table-user">
+                  <div class="table-avatar {{ 'admin-avatar' if user.is_admin }}">{{ user.username[0].upper() }}</div>
+                  {{ user.username }}
+                </div>
+              </td>
+              <td class="table-email">{{ user.email }}</td>
+              <td>
+                {% if user.is_admin %}
+                  <span class="badge badge-admin">Admin</span>
+                {% else %}
+                  <span class="badge badge-user">User</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if user.is_active %}
+                  <span class="badge badge-active">Active</span>
+                {% else %}
+                  <span class="badge badge-inactive">Inactive</span>
+                {% endif %}
+              </td>
+              <td class="table-date">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+              <td class="table-center">{{ user.summaries | length }}</td>
+              <td>
+                {% if not user.is_admin %}
+                <div class="table-actions">
+                  <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-xs {{ 'btn-warning' if user.is_active else 'btn-success' }}"
+                            title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                      <i class="fa-solid {{ 'fa-ban' if user.is_active else 'fa-circle-check' }}"></i>
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                        onsubmit="return confirm('Permanently delete {{ user.username }} and all their data?')"
+                        style="display:inline">
+                    <button type="submit" class="btn btn-xs btn-danger" title="Delete">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Summaries table ───────────────────────────────────────────────── -->
+    <div class="admin-table-section" id="summaries-section">
+      <div class="admin-table-header">
+        <h2><i class="fa-solid fa-file-lines"></i> All Summaries</h2>
+        <div class="table-search">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" placeholder="Search summaries…" onkeyup="filterTable('summaryTable', this.value)" />
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table" id="summaryTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Filename</th>
+              <th>Type</th>
+              <th>User</th>
+              <th>Words</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in summaries %}
+            <tr>
+              <td class="table-id">{{ s.id }}</td>
+              <td>
+                <a href="{{ url_for('result', summary_id=s.id) }}" class="table-link">
+                  {{ s.filename | truncate(35) }}
+                </a>
+              </td>
+              <td>
+                <span class="file-type-badge file-type-{{ s.file_type }}">
+                  {{ s.file_type.upper() }}
+                </span>
+              </td>
+              <td>{{ s.user.username if s.user else '—' }}</td>
+              <td class="table-center">{{ s.word_count }}</td>
+              <td class="table-date">{{ s.created_at.strftime('%b %d, %Y') }}</td>
+              <td>
+                <div class="table-actions">
+                  <a href="{{ url_for('result', summary_id=s.id) }}" class="btn btn-xs btn-primary" title="View">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  <form method="POST" action="{{ url_for('admin.delete_summary', summary_id=s.id) }}"
+                        onsubmit="return confirm('Delete this summary?')" style="display:inline">
+                    <button type="submit" class="btn btn-xs btn-danger" title="Delete">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% if not summaries %}
+        <div class="empty-state" style="padding:2rem">
+          <p>No summaries yet.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

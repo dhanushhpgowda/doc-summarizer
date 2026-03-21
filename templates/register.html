@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Create Account – DocuSumm AI{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <a href="{{ url_for('index') }}" class="nav-brand mb-lg">
+        <span class="brand-icon"><i class="fa-solid fa-bolt"></i></span>
+        DocuSumm<span class="brand-accent">AI</span>
+      </a>
+      <h2 class="auth-tagline">Smarter reading<br /><em>starts here.</em></h2>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          Free to get started
+        </div>
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          PDF, DOCX, PPTX &amp; images
+        </div>
+        <div class="auth-feature">
+          <i class="fa-solid fa-circle-check"></i>
+          Persistent summary history
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <h1>Create your account</h1>
+        <p>Get started with DocuSumm AI — it's free</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user input-icon"></i>
+            <input
+              type="text" id="username" name="username"
+              placeholder="johndoe"
+              required minlength="3" maxlength="80"
+              autocomplete="username"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <input
+              type="email" id="email" name="email"
+              placeholder="you@example.com"
+              required autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input
+                type="password" id="password" name="password"
+                placeholder="Min. 8 characters"
+                required minlength="8"
+                autocomplete="new-password"
+              />
+              <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                <i class="fa-solid fa-eye" id="password-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm password</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input
+                type="password" id="confirm_password" name="confirm_password"
+                placeholder="Repeat password"
+                required minlength="8"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Password strength indicator -->
+        <div class="password-strength" id="pwStrength" style="display:none">
+          <div class="strength-bar" id="strengthBar"></div>
+          <span id="strengthLabel"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          <i class="fa-solid fa-user-plus"></i> Create account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}" class="form-link">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Password strength meter
+  document.getElementById('password').addEventListener('input', function () {
+    const pw = this.value;
+    const bar = document.getElementById('strengthBar');
+    const label = document.getElementById('strengthLabel');
+    const wrap = document.getElementById('pwStrength');
+    if (!pw) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'flex';
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const levels = ['', 'weak', 'fair', 'good', 'strong'];
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    bar.className = 'strength-bar ' + (levels[score] || 'weak');
+    label.textContent = labels[score] || 'Weak';
+  });
+</script>
+{% endblock %}
